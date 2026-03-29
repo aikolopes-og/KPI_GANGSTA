@@ -6,14 +6,29 @@ const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 const CHART_TYPES = ['plotly', 'matplotlib', 'tabela'];
 const CHART_LABELS = { plotly: 'Interativo', matplotlib: 'Estático', tabela: 'Tabela' };
 
-/* ── Color palettes for animated gradient cycling ── */
-const PALETTES = [
-  ['rgba(233,69,96,0.85)', 'rgba(168,85,247,0.85)', 'rgba(59,130,246,0.85)', 'rgba(52,211,153,0.85)', 'rgba(251,191,36,0.85)'],
-  ['rgba(168,85,247,0.85)', 'rgba(59,130,246,0.85)', 'rgba(52,211,153,0.85)', 'rgba(251,191,36,0.85)', 'rgba(233,69,96,0.85)'],
-  ['rgba(59,130,246,0.85)', 'rgba(52,211,153,0.85)', 'rgba(251,191,36,0.85)', 'rgba(233,69,96,0.85)', 'rgba(168,85,247,0.85)'],
-  ['rgba(52,211,153,0.85)', 'rgba(251,191,36,0.85)', 'rgba(233,69,96,0.85)', 'rgba(168,85,247,0.85)', 'rgba(59,130,246,0.85)'],
-  ['rgba(251,191,36,0.85)', 'rgba(233,69,96,0.85)', 'rgba(168,85,247,0.85)', 'rgba(59,130,246,0.85)', 'rgba(52,211,153,0.85)'],
+/* ── Bar gradient colors (each bar gets its own color from this palette) ── */
+const BAR_COLORS = [
+  'rgba(233,69,96,{a})',   // red-pink
+  'rgba(168,85,247,{a})',  // purple
+  'rgba(59,130,246,{a})',  // blue
+  'rgba(52,211,153,{a})',  // green
+  'rgba(251,191,36,{a})',  // gold
+  'rgba(236,72,153,{a})',  // pink
+  'rgba(99,102,241,{a})',  // indigo
 ];
+
+/* Pulse: oscillate alpha between 0.6 and 1.0 */
+function pulseAlpha(tick) {
+  return 0.6 + 0.4 * (0.5 + 0.5 * Math.sin(tick * Math.PI * 2));
+}
+
+/* Generate bar colors at a given pulse phase (0..1) */
+function barColors(n, traceIdx, phase) {
+  const a = pulseAlpha(phase);
+  return Array.from({ length: n }, (_, i) =>
+    BAR_COLORS[(i + traceIdx) % BAR_COLORS.length].replace('{a}', a.toFixed(2))
+  );
+}
 
 const COL_FORMATS = {
   media_conversao: { suffix: '%', type: 'pct' },
@@ -59,27 +74,36 @@ function cellColor(col, v, min, max) {
 export default function KPICard({ kpi, numero, tipoGraficoGlobal }) {
   const [tipoGrafico, setTipoGrafico] = useState(tipoGraficoGlobal || 'plotly');
   const [selectedPoint, setSelectedPoint] = useState(null);
-  const [launched, setLaunched] = useState(false);
-  const [palIdx, setPalIdx] = useState(0);
+  const [phase, setPhase] = useState(0);
+  const [growStep, setGrowStep] = useState(0); // 0=hidden, 1..N=staggered bars growing
   const plotRef = useRef(null);
 
   useEffect(() => {
     if (tipoGraficoGlobal) setTipoGrafico(tipoGraficoGlobal);
   }, [tipoGraficoGlobal]);
 
-  // Reset launch state when switching to plotly
+  // Soft entrance: staggered grow from 0 → full over multiple steps
   useEffect(() => {
-    if (tipoGrafico === 'plotly') {
-      setLaunched(false);
-      const t = setTimeout(() => setLaunched(true), 50);
-      return () => clearTimeout(t);
-    }
-  }, [tipoGrafico]);
+    if (tipoGrafico !== 'plotly' || !kpi?.plotly_json) return;
+    setGrowStep(0);
+    const maxBars = Math.max(...kpi.plotly_json.data.map(t => (t.y || t.x || []).length), 1);
+    const totalSteps = maxBars + 6; // extra steps for easing to 100%
+    let step = 0;
+    const iv = setInterval(() => {
+      step++;
+      setGrowStep(step);
+      if (step >= totalSteps) clearInterval(iv);
+    }, 120);
+    return () => clearInterval(iv);
+  }, [tipoGrafico, kpi]);
 
-  // Infinite color cycling interval
+  // Infinite pulse: smooth breathing on bar colors (~20fps for performance)
   useEffect(() => {
     if (tipoGrafico !== 'plotly') return;
-    const iv = setInterval(() => setPalIdx(p => (p + 1) % PALETTES.length), 2200);
+    const start = Date.now();
+    const iv = setInterval(() => {
+      setPhase(((Date.now() - start) % 2500) / 2500);
+    }, 50);
     return () => clearInterval(iv);
   }, [tipoGrafico]);
 
@@ -94,36 +118,47 @@ export default function KPICard({ kpi, numero, tipoGraficoGlobal }) {
     setSelectedPoint(prev => (prev && prev.label === lbl) ? null : { label: lbl, row });
   };
 
-  // Build animated traces
+  // Build traces with pulsing bar colors + staggered entrance
   const buildTraces = useCallback(() => {
     if (!kpi.plotly_json) return [];
-    const pal = PALETTES[palIdx];
     return kpi.plotly_json.data.map((tr, ti) => {
       const isFunnel = tr.type === 'funnel';
       const isBar = tr.type === 'bar';
-      const nPoints = (tr.y || tr.x || []).length;
-      const colors = Array.from({ length: nPoints }, (_, i) => pal[(i + ti) % pal.length]);
+      const values = tr.y || tr.x || [];
+      const n = values.length;
+      const colors = barColors(n, ti, phase);
 
       const base = {
         ...tr,
         marker: {
           ...tr.marker,
           color: colors,
-          line: { ...(tr.marker?.line || {}), width: 1.5, color: 'rgba(255,255,255,0.15)' },
+          line: { ...(tr.marker?.line || {}), width: 1, color: 'rgba(255,255,255,0.1)' },
         },
         hoverlabel: { bgcolor: 'rgba(12,10,29,0.95)', bordercolor: 'rgba(168,85,247,0.5)', font: { color: '#fff', size: 13 } },
       };
 
-      // Launch animation: start from zero values, animate to real
-      if (isBar && !launched) {
-        return { ...base, y: (tr.y || []).map(() => 0) };
+      // Staggered soft entrance: each bar grows independently
+      if (isBar && growStep < n + 6) {
+        const newY = values.map((v, i) => {
+          const barProgress = Math.min(1, Math.max(0, (growStep - i) / 6));
+          // Ease-out cubic for soft landing
+          const eased = 1 - Math.pow(1 - barProgress, 3);
+          return v * eased;
+        });
+        return { ...base, y: newY };
       }
-      if (isFunnel && !launched) {
-        return { ...base, x: (tr.x || []).map(() => 0) };
+      if (isFunnel && growStep < n + 6) {
+        const newX = values.map((v, i) => {
+          const barProgress = Math.min(1, Math.max(0, (growStep - i) / 6));
+          const eased = 1 - Math.pow(1 - barProgress, 3);
+          return v * eased;
+        });
+        return { ...base, x: newX };
       }
       return base;
     });
-  }, [kpi, palIdx, launched]);
+  }, [kpi, phase, growStep]);
 
   const plotLayout = {
     ...kpi.plotly_json?.layout,
@@ -135,7 +170,6 @@ export default function KPICard({ kpi, numero, tipoGraficoGlobal }) {
     margin: { l: 50, r: 16, t: 40, b: 50 },
     xaxis: { ...kpi.plotly_json?.layout?.xaxis, gridcolor: 'rgba(255,255,255,0.05)', zerolinecolor: 'rgba(255,255,255,0.08)' },
     yaxis: { ...kpi.plotly_json?.layout?.yaxis, gridcolor: 'rgba(255,255,255,0.05)', zerolinecolor: 'rgba(255,255,255,0.08)' },
-    transition: { duration: 800, easing: 'cubic-in-out' },
   };
 
   return (
@@ -152,7 +186,7 @@ export default function KPICard({ kpi, numero, tipoGraficoGlobal }) {
         ))}
       </div>
 
-      <div className={`grafico-container${tipoGrafico === 'plotly' ? ' neon-glow' : ''}`}>
+      <div className="grafico-container">
         {tipoGrafico === 'matplotlib' && kpi.matplotlib_img && (
           <img src={`data:image/png;base64,${kpi.matplotlib_img}`} alt={`Gráfico ${kpi.titulo}`} />
         )}
