@@ -1,0 +1,720 @@
+/* ============================================================
+   KPI GANGSTAS — iOS 26 Liquid Glass Design System
+   Mobile-first → Desktop balanced
+   ============================================================ */
+
+:root {
+  /* Gradiente de fundo vibrante (inspirado iOS 26) */
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-bg-strong: rgba(255, 255, 255, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-border-strong: rgba(255, 255, 255, 0.25);
+  --glass-blur: 20px;
+  --glass-blur-heavy: 40px;
+
+  /* Cores vibrantes */
+  --accent: #e94560;
+  --accent-soft: rgba(233, 69, 96, 0.15);
+  --accent-secondary: #a855f7;
+  --accent-tertiary: #3b82f6;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+
+  /* Texto */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-tertiary: rgba(255, 255, 255, 0.4);
+
+  /* Radius iOS 26 */
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
+  --radius-pill: 100px;
+
+  /* Spacing mobile-first */
+  --space-xs: 6px;
+  --space-sm: 10px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Safe area */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
+    'Helvetica Neue', 'Segoe UI', system-ui, sans-serif;
+  color: var(--text-primary);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  /* Gradiente vibrante iOS 26 — céu quente */
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(168, 85, 247, 0.35) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 10%, rgba(59, 130, 246, 0.3) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 80%, rgba(233, 69, 96, 0.2) 0%, transparent 50%),
+    linear-gradient(180deg, #0c0a1d 0%, #141028 40%, #0f172a 100%);
+  background-attachment: fixed;
+}
+
+/* ============================================================
+   Container
+   ============================================================ */
+.container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: var(--space-md);
+  padding-top: calc(var(--safe-top) + var(--space-md));
+  padding-bottom: calc(var(--safe-bottom) + var(--space-xl));
+}
+
+/* ============================================================
+   LIQUID GLASS — base mixin via class
+   ============================================================ */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* ============================================================
+   Header — Pill-style (Dynamic Island inspired)
+   ============================================================ */
+.header {
+  text-align: center;
+  padding: var(--space-lg) var(--space-md);
+  margin-bottom: var(--space-lg);
+  position: relative;
+}
+
+.header h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+}
+
+.header p {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* Status pill — Dynamic Island style */
+.ws-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-top: var(--space-sm);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.ws-status .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.ws-status.connected {
+  background: rgba(52, 211, 153, 0.1);
+  border-color: rgba(52, 211, 153, 0.25);
+  color: var(--success);
+}
+.ws-status.connected .dot { background: var(--success); }
+
+.ws-status.disconnected {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.2);
+  color: var(--accent-tertiary);
+}
+.ws-status.disconnected .dot { background: var(--accent-tertiary); }
+
+/* ============================================================
+   Resumo Cards — Liquid Glass grid
+   ============================================================ */
+.resumo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.resumo-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  text-align: center;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.resumo-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.resumo-card:active {
+  transform: scale(0.97);
+}
+
+.resumo-card:hover::before {
+  opacity: 1;
+}
+
+.resumo-card .valor {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #fff, rgba(255,255,255,0.8));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.resumo-card .label {
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Cor accent nos primeiros cards */
+.resumo-card:nth-child(1) .valor { background: linear-gradient(135deg, #e94560, #ff6b81); -webkit-background-clip: text; background-clip: text; }
+.resumo-card:nth-child(2) .valor { background: linear-gradient(135deg, #a855f7, #c084fc); -webkit-background-clip: text; background-clip: text; }
+.resumo-card:nth-child(3) .valor { background: linear-gradient(135deg, #3b82f6, #60a5fa); -webkit-background-clip: text; background-clip: text; }
+.resumo-card:nth-child(4) .valor { background: linear-gradient(135deg, #34d399, #6ee7b7); -webkit-background-clip: text; background-clip: text; font-size: 0.85rem; }
+
+/* ============================================================
+   Tabs — Pill nav (iOS segmented control style)
+   ============================================================ */
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: var(--space-lg);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  position: relative;
+}
+
+.tab-btn:active {
+  transform: scale(0.96);
+}
+
+.tab-btn.active {
+  color: var(--text-primary);
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================================
+   KPI Section — Liquid Glass Card
+   ============================================================ */
+.kpi-section {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur-heavy));
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-md);
+  margin-bottom: var(--space-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-secondary), var(--accent-tertiary));
+  opacity: 0.6;
+}
+
+.kpi-section h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.kpi-section .descricao {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+/* ============================================================
+   Chart Toggle — Micro pills
+   ============================================================ */
+.chart-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: var(--space-md);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.chart-toggle::-webkit-scrollbar { display: none; }
+
+.chart-toggle button {
+  padding: 7px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+.chart-toggle button:active {
+  transform: scale(0.95);
+}
+
+.chart-toggle button.active {
+  background: linear-gradient(135deg, rgba(233, 69, 96, 0.2), rgba(168, 85, 247, 0.2));
+  border-color: rgba(233, 69, 96, 0.4);
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(233, 69, 96, 0.15);
+}
+
+/* ============================================================
+   Gráfico Container — Glass viewport
+   ============================================================ */
+.grafico-container {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+  margin-bottom: var(--space-md);
+  text-align: center;
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.grafico-container img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+
+/* Plotly responsive override */
+.grafico-container .js-plotly-plot,
+.grafico-container .plot-container {
+  width: 100% !important;
+}
+
+/* ============================================================
+   Insight Box — Frosted notification card
+   ============================================================ */
+.insight-box {
+  background: linear-gradient(135deg, rgba(233, 69, 96, 0.06), rgba(168, 85, 247, 0.06));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(233, 69, 96, 0.15);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-top: var(--space-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.insight-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--accent), var(--accent-secondary));
+  border-radius: 2px;
+}
+
+.insight-box h4 {
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  padding-left: 6px;
+}
+
+.insight-box p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 0.8rem;
+  padding-left: 6px;
+}
+
+/* ============================================================
+   Tabela — Glass table
+   ============================================================ */
+.tabela-dados {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: var(--space-sm);
+  font-size: 0.75rem;
+}
+
+.tabela-dados th {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  padding: 10px var(--space-sm);
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tabela-dados th:first-child { border-radius: var(--radius-sm) 0 0 0; }
+.tabela-dados th:last-child { border-radius: 0 var(--radius-sm) 0 0; }
+
+.tabela-dados td {
+  padding: 10px var(--space-sm);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabela-dados tr:last-child td { border-bottom: none; }
+
+.tabela-dados tr:active td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* ============================================================
+   Status Badges — Pill style
+   ============================================================ */
+.status-badge {
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.status-aberto { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+.status-negociacao { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+.status-ganho { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+.status-perdido { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+
+/* ============================================================
+   Loading — iOS-style spinner
+   ============================================================ */
+.loading {
+  text-align: center;
+  padding: 80px var(--space-md);
+  color: var(--text-secondary);
+}
+
+.loading .spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(255, 255, 255, 0.08);
+  border-top: 3px solid var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading p {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* ============================================================
+   Error state
+   ============================================================ */
+.error-card {
+  background: rgba(248, 113, 113, 0.08);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  text-align: center;
+  margin-bottom: var(--space-lg);
+}
+
+.error-card p {
+  color: var(--danger);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.error-card button {
+  margin-top: var(--space-sm);
+  padding: 10px 24px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+  color: white;
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.error-card button:active {
+  transform: scale(0.95);
+  opacity: 0.9;
+}
+
+/* ============================================================
+   Footer — minimal
+   ============================================================ */
+.footer {
+  text-align: center;
+  padding: var(--space-xl) var(--space-md) var(--space-lg);
+  color: var(--text-tertiary);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* ============================================================
+   DESKTOP BREAKPOINT — ≥768px
+   ============================================================ */
+@media (min-width: 768px) {
+  :root {
+    --space-md: 20px;
+    --space-lg: 28px;
+    --space-xl: 40px;
+  }
+
+  .container {
+    max-width: 900px;
+    padding: var(--space-lg);
+  }
+
+  .header h1 {
+    font-size: 2.2rem;
+  }
+
+  .header p {
+    font-size: 1rem;
+  }
+
+  .ws-status {
+    font-size: 0.75rem;
+  }
+
+  .resumo-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-md);
+  }
+
+  .resumo-card {
+    padding: var(--space-lg);
+  }
+
+  .resumo-card .valor {
+    font-size: 1.65rem;
+  }
+
+  .resumo-card .label {
+    font-size: 0.75rem;
+  }
+
+  .resumo-card:nth-child(4) .valor {
+    font-size: 0.95rem;
+  }
+
+  .tabs {
+    gap: 8px;
+  }
+
+  .tab-btn {
+    padding: 11px 20px;
+    font-size: 0.82rem;
+  }
+
+  .kpi-section {
+    padding: var(--space-xl) var(--space-lg);
+    border-radius: var(--radius-xl);
+    margin-bottom: var(--space-lg);
+  }
+
+  .kpi-section h2 {
+    font-size: 1.35rem;
+  }
+
+  .kpi-section .descricao {
+    font-size: 0.9rem;
+  }
+
+  .chart-toggle button {
+    padding: 8px 18px;
+    font-size: 0.78rem;
+  }
+
+  .grafico-container {
+    min-height: 380px;
+    padding: var(--space-md);
+    border-radius: var(--radius-lg);
+  }
+
+  .insight-box {
+    padding: var(--space-lg);
+    border-radius: var(--radius-lg);
+  }
+
+  .insight-box h4 { font-size: 0.9rem; }
+  .insight-box p { font-size: 0.88rem; }
+
+  .tabela-dados th { font-size: 0.72rem; padding: 12px var(--space-md); }
+  .tabela-dados td { font-size: 0.82rem; padding: 12px var(--space-md); }
+
+  .footer { font-size: 0.75rem; }
+}
+
+/* ============================================================
+   LARGE DESKTOP — ≥1200px
+   ============================================================ */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1100px;
+  }
+
+  .header h1 {
+    font-size: 2.5rem;
+  }
+
+  .resumo-card .valor {
+    font-size: 1.85rem;
+  }
+
+  .grafico-container {
+    min-height: 450px;
+  }
+}
+
+/* ============================================================
+   Animations
+   ============================================================ */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.resumo-card,
+.kpi-section,
+.insight-box {
+  animation: fade-up 0.5s ease-out both;
+}
+
+.resumo-card:nth-child(1) { animation-delay: 0.05s; }
+.resumo-card:nth-child(2) { animation-delay: 0.1s; }
+.resumo-card:nth-child(3) { animation-delay: 0.15s; }
+.resumo-card:nth-child(4) { animation-delay: 0.2s; }
+.resumo-card:nth-child(5) { animation-delay: 0.25s; }
+.resumo-card:nth-child(6) { animation-delay: 0.3s; }
+.resumo-card:nth-child(7) { animation-delay: 0.35s; }
+.resumo-card:nth-child(8) { animation-delay: 0.4s; }

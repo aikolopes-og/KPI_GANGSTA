@@ -1,0 +1,32 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kpi-gangstas-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./Funil_Vendas.xlsx:/app/data/Funil_Vendas.xlsx:ro
+    environment:
+      - DATA_PATH=/app/data/Funil_Vendas.xlsx
+    restart: unless-stopped
+    networks:
+      - kpi-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: kpi-gangstas-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - kpi-network
+
+networks:
+  kpi-network:
+    driver: bridge
