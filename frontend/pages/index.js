@@ -18,11 +18,25 @@ export default function Home() {
         <meta name="theme-color" content="#0c0a1d" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="apple-touch-icon" href="/favicon.svg" />
       </Head>
 
       <div className="container">
         {/* Header */}
         <header className="header">
+          <div className="header-logo">
+            <svg viewBox="0 0 64 64" className="ninja-icon" aria-hidden="true">
+              <circle cx="32" cy="26" r="14" fill="rgba(255,255,255,0.08)"/>
+              <rect x="18" y="20" width="28" height="12" rx="6" fill="var(--accent)"/>
+              <ellipse cx="26" cy="26" rx="3.5" ry="2" fill="#fff"/>
+              <ellipse cx="38" cy="26" rx="3.5" ry="2" fill="#fff"/>
+              <ellipse cx="26.5" cy="26" rx="1.5" ry="1.5" fill="currentColor"/>
+              <ellipse cx="38.5" cy="26" rx="1.5" ry="1.5" fill="currentColor"/>
+              <path d="M46 24 Q52 22 54 18" stroke="var(--accent)" strokeWidth="3" fill="none" strokeLinecap="round"/>
+              <path d="M46 27 Q54 28 56 24" stroke="var(--accent)" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+            </svg>
+          </div>
           <h1>KPI GANGSTAS</h1>
           <p>Análise do Funil de Vendas</p>
           <div className={`ws-status ${wsConectado ? 'connected' : 'disconnected'}`}>

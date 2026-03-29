@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <circle cx="32" cy="32" r="30" fill="#0c0a1d"/>
+  <!-- Head -->
+  <circle cx="32" cy="26" r="14" fill="#1a1632"/>
+  <!-- Mask/bandana -->
+  <rect x="18" y="20" width="28" height="12" rx="6" fill="#e94560"/>
+  <!-- Eyes -->
+  <ellipse cx="26" cy="26" rx="3.5" ry="2" fill="#fff"/>
+  <ellipse cx="38" cy="26" rx="3.5" ry="2" fill="#fff"/>
+  <ellipse cx="26.5" cy="26" rx="1.5" ry="1.5" fill="#0c0a1d"/>
+  <ellipse cx="38.5" cy="26" rx="1.5" ry="1.5" fill="#0c0a1d"/>
+  <!-- Bandana tails -->
+  <path d="M46 24 Q52 22 54 18" stroke="#e94560" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M46 27 Q54 28 56 24" stroke="#e94560" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Body hint -->
+  <path d="M24 40 L22 52 M32 38 L32 54 M40 40 L42 52" stroke="#1a1632" stroke-width="3" stroke-linecap="round"/>
+  <rect x="22" y="36" width="20" height="8" rx="4" fill="#1a1632"/>
+  <!-- Sword on back -->
+  <line x1="20" y1="46" x2="14" y2="16" stroke="#a855f7" stroke-width="2" stroke-linecap="round"/>
+  <line x1="12" y1="18" x2="16" y2="14" stroke="#c084fc" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

@@ -154,6 +154,25 @@ body {
   position: relative;
 }
 
+.header-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-sm);
+}
+
+.ninja-icon {
+  width: 48px;
+  height: 48px;
+  filter: drop-shadow(0 2px 8px rgba(233, 69, 96, 0.3));
+  animation: ninja-float 3s ease-in-out infinite;
+  color: var(--text-primary);
+}
+
+@keyframes ninja-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
 .header h1 {
   font-size: 1.75rem;
   font-weight: 800;
@@ -977,6 +996,11 @@ body {
 
   .header h1 {
     font-size: 2.2rem;
+  }
+
+  .ninja-icon {
+    width: 56px;
+    height: 56px;
   }
 
   .header p {
