@@ -42,10 +42,10 @@ def check(name, condition, detail=""):
     global PASS, FAIL
     if condition:
         PASS += 1
-        print(f"  ✅ {name}")
+        print(f"  (OK) {name}")
     else:
         FAIL += 1
-        print(f"  ❌ {name}  {detail}")
+        print(f"  (ERROR) {name}  {detail}")
 
 
 # ══════════════════════════════════════════════════════════════
@@ -317,9 +317,9 @@ def fase_restaurar():
 # MAIN
 # ══════════════════════════════════════════════════════════════
 def main():
-    print("\n" + "🔥" * 20)
-    print("  KPI GANGSTAS — TESTE END-TO-END")
-    print("🔥" * 20)
+    print("\n" + "=" * 60)
+    print("  KPI GANGSTAS -- TESTE END-TO-END")
+    print("=" * 60)
 
     try:
         # Fase 1: SELECT original
@@ -341,15 +341,15 @@ def main():
     # Relatório
     section("RELATÓRIO FINAL")
     total = PASS + FAIL
-    print(f"\n  Total de verificações: {total}")
-    print(f"  ✅ Passou: {PASS}")
-    print(f"  ❌ Falhou: {FAIL}")
+    print(f"\n  Total de verificacoes: {total}")
+    print(f"  (OK) Passou: {PASS}")
+    print(f"  (ERROR) Falhou: {FAIL}")
     print(f"  Taxa de sucesso: {PASS/total*100:.1f}%\n")
 
     if FAIL == 0:
-        print("  🎉 TODOS OS TESTES PASSARAM! Sistema validado.\n")
+        print("  TODOS OS TESTES PASSARAM! Sistema validado.\n")
     else:
-        print(f"  ⚠️  {FAIL} teste(s) falharam. Revise os detalhes acima.\n")
+        print(f"  ATENCAO: {FAIL} teste(s) falharam. Revise os detalhes acima.\n")
 
     return FAIL == 0
 

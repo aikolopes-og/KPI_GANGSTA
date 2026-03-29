@@ -1,8 +1,8 @@
-# 📋 KPI GANGSTAS - Registro de Prompts e Resultados
+# KPI GANGSTAS - Registro de Prompts e Resultados
 
 <!-- 
   ╔══════════════════════════════════════════════════════════════════╗
-  ║  🤖 RECADO PARA O COPILOT (CONTEXTO PERSISTENTE)              ║
+  ║  RECADO PARA O COPILOT (CONTEXTO PERSISTENTE)              ║
   ║                                                                 ║
   ║  Este arquivo serve como "memória" do projeto.                  ║
   ║  Ao continuar o desenvolvimento, LEIA ESTE ARQUIVO primeiro     ║
@@ -62,7 +62,7 @@
 
 ---
 
-## 🔹 Prompt 1 — Configuração Inicial do Ambiente
+## Prompt 1 — Configuração Inicial do Ambiente
 **Solicitação do Aluno:**
 > "Instale as dependências do Next.js, Python libs matplotlib, pandas e streamlit"
 
@@ -74,7 +74,7 @@
 
 ---
 
-## 🔹 Prompt 2 — Viabilidade Matplotlib + Next.js
+## Prompt 2 — Viabilidade Matplotlib + Next.js
 **Solicitação do Aluno:**
 > "É possível utilizar a visualização de gráficos do matplotlib na exibição do Next.js?"
 
@@ -87,7 +87,7 @@
 
 ---
 
-## 🔹 Prompt 3 — Amostragem Dinâmica
+## Prompt 3 — Amostragem Dinâmica
 **Solicitação do Aluno:**
 > "E se precisarmos da amostragem dinâmica de modo aos gráficos consultarem e se atualizar dinamicamente?"
 
@@ -99,7 +99,7 @@
 
 ---
 
-## 🔹 Prompt 4 — Construção Completa do Sistema
+## Prompt 4 — Construção Completa do Sistema
 **Solicitação do Aluno:**
 > "Preciso construir um sistema com essas funções baseados nesses parâmetros. Crie um container Docker isolado para rodar a aplicação localhost inicialmente."
 > Planilha alvo: `Funil_Vendas.xlsx`
@@ -137,7 +137,7 @@ docker-compose up --build
 
 ---
 
-## 📊 Análise da IA sobre os Dados (Funil_Vendas.xlsx)
+## Análise da IA sobre os Dados (Funil_Vendas.xlsx)
 
 ### Visão Geral
 A planilha contém **100 registros** de um funil de vendas com as seguintes características:
@@ -161,7 +161,7 @@ A planilha contém **100 registros** de um funil de vendas com as seguintes cara
 
 ---
 
-## 🔹 Prompt 5 — Otimização para Deploy na Vercel
+## Prompt 5 — Otimização para Deploy na Vercel
 **Solicitação do Aluno:**
 > "Agora que já possui uma base do sistema, otimize o mesmo com Next.js para facilitar a deploy no Vercel quando o trabalho for 100% otimizado no localhost"
 
@@ -202,7 +202,7 @@ docker-compose up --build -d    # Sobe containers
 
 ---
 
-## 🔹 Prompt 6 — Redesign iOS 26 Liquid Glass (Mobile-First)
+## Prompt 6 — Redesign iOS 26 Liquid Glass (Mobile-First)
 **Solicitação do Aluno:**
 > "CONFIRA E OPTIMIZE AS CONFIGURAÇÕES PRIMARIAMENTE MOBILE, E DEPOIS DE EXTREMAMENTE OPTIMIZADA, EQUILIBRE A VERSÃO DESKTOP TAMBÉM. UTILIZE OS CONCEITOS DE DESIGN APRESENTADOS NO IOS 26"
 
