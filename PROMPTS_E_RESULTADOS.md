@@ -340,3 +340,33 @@ docker-compose up --build -d    # Sobe containers
 | `frontend/styles/globals.css` | `bar-pulse` keyframes com stagger delays, `plot-enter` fade-in |
 | `PROMPTS_E_RESULTADOS.md` | Atualizado com prompts 7–12 |
 | `README.md` | Criado com descrição do app, URL, stack e instruções |
+
+---
+
+## Prompt 13 — Gráficos Interativos 100% React/SVG (sem Plotly)
+**Solicitação do Aluno:**
+> "THE INTERATIVE GRAPHS HAVE TO BE COMPLETLY BUILD ON NEXT BECAUSE HE HAS THE FRAMWORKS TO HONOR THIS REFERECES" — referências: GIFs de pulse effect equalizer-style em `C:\Users\Aiko\Downloads\types_of_pulse_effect`
+
+**Resultado:**
+- **Plotly removido** dos gráficos interativos — substituído por componentes React/SVG puros
+- **AnimatedBarChart.js**: gráfico de barras agrupadas (KPI1) e empilhadas (KPI3) com SVG `<rect>` + `<linearGradient>` vertical (lighter→original→darker)
+- **AnimatedFunnelChart.js**: funil horizontal (KPI2) com segmentos centrados proporcionais, `<linearGradient>` horizontal (dark→light→dark)
+- **Animação de entrada**: `bar-enter` (scaleY 0→1 com overshoot spring via cubic-bezier) e `funnel-enter` (scaleX 0→1)
+- **Pulse contínuo**: `bar-breathe` (scaleY 1→1.055 + brightness 1→1.28 + drop-shadow glow) e `funnel-breathe` (scaleX 1→1.022)
+- **Wave stagger**: cada barra/segmento tem `animation-delay` incremental criando efeito onda
+- **Hover**: dim de barras não-selecionadas (opacity 0.45) + tooltip SVG inline
+- **Click**: painel de detalhes existente funciona com novo handler
+- **Bundle size**: First Load JS caiu de ~200+ kB (com Plotly) para **84.7 kB**
+- **CSS custom properties**: `--glow` por barra permite cor individual no drop-shadow
+- **transform-box: fill-box** para transform-origin relativo ao bounding box do SVG rect
+
+---
+
+| Arquivo | Alteração |
+|---------|-----------|
+| `frontend/components/AnimatedBarChart.js` | Novo — gráfico de barras puro React/SVG com gradiente + pulse |
+| `frontend/components/AnimatedFunnelChart.js` | Novo — funil puro React/SVG com gradiente + pulse |
+| `frontend/components/KPICard.js` | Plotly removido, importa AnimatedBarChart/FunnelChart, handler simplificado |
+| `frontend/styles/globals.css` | Novos keyframes: `bar-enter`, `bar-breathe`, `funnel-enter`, `funnel-breathe`, `chart-fade-in` |
+| `README.md` | Stack atualizada (React/SVG no lugar de Plotly) |
+| `PROMPTS_E_RESULTADOS.md` | Prompt 13 adicionado |

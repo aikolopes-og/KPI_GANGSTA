@@ -20,7 +20,9 @@ Sistema completo de análise de dados baseado na planilha **Funil_Vendas.xlsx** 
 
 ### Features
 
-- Gráficos interativos (Plotly) com **efeito pulse** nas barras e **gradiente gaussian** via SVG
+- Gráficos interativos com **animações pulse/breathe** — barras e funil em **React/SVG puro** (sem Plotly)
+- **Gradiente gaussian** nas barras via `<linearGradient>` SVG
+- **Entrada animada** (scaleY spring) + **brilho pulsatório** contínuo com stagger wave
 - Gráficos estáticos (Matplotlib) como alternativa
 - Tabelas de dados com **unidades de medida** e **gradiente de cores** por valor
 - Click em barras expande **painel de detalhes** com dados completos
@@ -37,7 +39,7 @@ Sistema completo de análise de dados baseado na planilha **Funil_Vendas.xlsx** 
 
 | Camada | Tecnologias |
 |--------|-------------|
-| **Frontend** | Next.js 14, React 18, react-plotly.js |
+| **Frontend** | Next.js 14, React 18, Custom SVG Charts (AnimatedBarChart, AnimatedFunnelChart) |
 | **Backend** | Python 3.11, FastAPI, Pandas, Matplotlib, Plotly, OpenPyXL |
 | **Infra** | Docker, Docker Compose, Vercel |
 | **Design** | iOS 26 Liquid Glass, CSS Custom Properties, SVG animations |
