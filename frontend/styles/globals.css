@@ -448,11 +448,36 @@ body {
 }
 
 /* ============================================================
-   Neon Glow — Interactive chart enhancement
+   Neon Glow — Interactive chart enhancement (ALIVE)
    ============================================================ */
 .grafico-container.neon-glow {
-  border-color: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.15);
+  position: relative;
   animation: neon-pulse 3s ease-in-out infinite;
+}
+
+.grafico-container.neon-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    120deg,
+    transparent 25%,
+    rgba(168, 85, 247, 0.04) 40%,
+    rgba(233, 69, 96, 0.06) 50%,
+    rgba(59, 130, 246, 0.04) 60%,
+    transparent 75%
+  );
+  background-size: 250% 100%;
+  animation: shimmer-sweep 4s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes shimmer-sweep {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 @keyframes neon-pulse {
@@ -464,10 +489,10 @@ body {
   }
   50% {
     box-shadow:
-      0 0 12px rgba(168, 85, 247, 0.18),
-      0 0 36px rgba(168, 85, 247, 0.08),
-      0 0 60px rgba(168, 85, 247, 0.03),
-      inset 0 0 12px rgba(168, 85, 247, 0.06);
+      0 0 14px rgba(168, 85, 247, 0.2),
+      0 0 40px rgba(168, 85, 247, 0.1),
+      0 0 80px rgba(233, 69, 96, 0.04),
+      inset 0 0 14px rgba(168, 85, 247, 0.06);
   }
 }
 

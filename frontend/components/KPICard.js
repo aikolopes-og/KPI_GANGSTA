@@ -1,10 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
 const CHART_TYPES = ['plotly', 'matplotlib', 'tabela'];
 const CHART_LABELS = { plotly: 'Interativo', matplotlib: 'Estático', tabela: 'Tabela' };
+
+/* ── Color palettes for animated gradient cycling ── */
+const PALETTES = [
+  ['rgba(233,69,96,0.85)', 'rgba(168,85,247,0.85)', 'rgba(59,130,246,0.85)', 'rgba(52,211,153,0.85)', 'rgba(251,191,36,0.85)'],
+  ['rgba(168,85,247,0.85)', 'rgba(59,130,246,0.85)', 'rgba(52,211,153,0.85)', 'rgba(251,191,36,0.85)', 'rgba(233,69,96,0.85)'],
+  ['rgba(59,130,246,0.85)', 'rgba(52,211,153,0.85)', 'rgba(251,191,36,0.85)', 'rgba(233,69,96,0.85)', 'rgba(168,85,247,0.85)'],
+  ['rgba(52,211,153,0.85)', 'rgba(251,191,36,0.85)', 'rgba(233,69,96,0.85)', 'rgba(168,85,247,0.85)', 'rgba(59,130,246,0.85)'],
+  ['rgba(251,191,36,0.85)', 'rgba(233,69,96,0.85)', 'rgba(168,85,247,0.85)', 'rgba(59,130,246,0.85)', 'rgba(52,211,153,0.85)'],
+];
 
 const COL_FORMATS = {
   media_conversao: { suffix: '%', type: 'pct' },
@@ -50,10 +59,29 @@ function cellColor(col, v, min, max) {
 export default function KPICard({ kpi, numero, tipoGraficoGlobal }) {
   const [tipoGrafico, setTipoGrafico] = useState(tipoGraficoGlobal || 'plotly');
   const [selectedPoint, setSelectedPoint] = useState(null);
+  const [launched, setLaunched] = useState(false);
+  const [palIdx, setPalIdx] = useState(0);
+  const plotRef = useRef(null);
 
   useEffect(() => {
     if (tipoGraficoGlobal) setTipoGrafico(tipoGraficoGlobal);
   }, [tipoGraficoGlobal]);
+
+  // Reset launch state when switching to plotly
+  useEffect(() => {
+    if (tipoGrafico === 'plotly') {
+      setLaunched(false);
+      const t = setTimeout(() => setLaunched(true), 50);
+      return () => clearTimeout(t);
+    }
+  }, [tipoGrafico]);
+
+  // Infinite color cycling interval
+  useEffect(() => {
+    if (tipoGrafico !== 'plotly') return;
+    const iv = setInterval(() => setPalIdx(p => (p + 1) % PALETTES.length), 2200);
+    return () => clearInterval(iv);
+  }, [tipoGrafico]);
 
   if (!kpi) return null;
 
@@ -64,6 +92,50 @@ export default function KPICard({ kpi, numero, tipoGraficoGlobal }) {
     const lbl = String(pt.x ?? pt.label ?? '');
     const row = dados.find(d => String(d[Object.keys(d)[0]]) === lbl);
     setSelectedPoint(prev => (prev && prev.label === lbl) ? null : { label: lbl, row });
+  };
+
+  // Build animated traces
+  const buildTraces = useCallback(() => {
+    if (!kpi.plotly_json) return [];
+    const pal = PALETTES[palIdx];
+    return kpi.plotly_json.data.map((tr, ti) => {
+      const isFunnel = tr.type === 'funnel';
+      const isBar = tr.type === 'bar';
+      const nPoints = (tr.y || tr.x || []).length;
+      const colors = Array.from({ length: nPoints }, (_, i) => pal[(i + ti) % pal.length]);
+
+      const base = {
+        ...tr,
+        marker: {
+          ...tr.marker,
+          color: colors,
+          line: { ...(tr.marker?.line || {}), width: 1.5, color: 'rgba(255,255,255,0.15)' },
+        },
+        hoverlabel: { bgcolor: 'rgba(12,10,29,0.95)', bordercolor: 'rgba(168,85,247,0.5)', font: { color: '#fff', size: 13 } },
+      };
+
+      // Launch animation: start from zero values, animate to real
+      if (isBar && !launched) {
+        return { ...base, y: (tr.y || []).map(() => 0) };
+      }
+      if (isFunnel && !launched) {
+        return { ...base, x: (tr.x || []).map(() => 0) };
+      }
+      return base;
+    });
+  }, [kpi, palIdx, launched]);
+
+  const plotLayout = {
+    ...kpi.plotly_json?.layout,
+    autosize: true,
+    height: typeof window !== 'undefined' && window.innerWidth < 768 ? 300 : 420,
+    paper_bgcolor: 'transparent',
+    plot_bgcolor: 'transparent',
+    font: { color: 'rgba(255,255,255,0.65)', size: 11, family: '-apple-system, BlinkMacSystemFont, sans-serif' },
+    margin: { l: 50, r: 16, t: 40, b: 50 },
+    xaxis: { ...kpi.plotly_json?.layout?.xaxis, gridcolor: 'rgba(255,255,255,0.05)', zerolinecolor: 'rgba(255,255,255,0.08)' },
+    yaxis: { ...kpi.plotly_json?.layout?.yaxis, gridcolor: 'rgba(255,255,255,0.05)', zerolinecolor: 'rgba(255,255,255,0.08)' },
+    transition: { duration: 800, easing: 'cubic-in-out' },
   };
 
   return (
@@ -86,22 +158,9 @@ export default function KPICard({ kpi, numero, tipoGraficoGlobal }) {
         )}
         {tipoGrafico === 'plotly' && kpi.plotly_json && (
           <Plot
-            data={kpi.plotly_json.data.map(tr => ({
-              ...tr,
-              marker: { ...tr.marker, line: { ...(tr.marker?.line || {}), width: 1.5, color: 'rgba(255,255,255,0.12)' } },
-              hoverlabel: { bgcolor: 'rgba(12,10,29,0.95)', bordercolor: 'rgba(168,85,247,0.5)', font: { color: '#fff', size: 13 } },
-            }))}
-            layout={{
-              ...kpi.plotly_json.layout,
-              autosize: true,
-              height: typeof window !== 'undefined' && window.innerWidth < 768 ? 300 : 420,
-              paper_bgcolor: 'transparent',
-              plot_bgcolor: 'transparent',
-              font: { color: 'rgba(255,255,255,0.65)', size: 11, family: '-apple-system, BlinkMacSystemFont, sans-serif' },
-              margin: { l: 50, r: 16, t: 40, b: 50 },
-              xaxis: { ...kpi.plotly_json.layout?.xaxis, gridcolor: 'rgba(255,255,255,0.05)', zerolinecolor: 'rgba(255,255,255,0.08)' },
-              yaxis: { ...kpi.plotly_json.layout?.yaxis, gridcolor: 'rgba(255,255,255,0.05)', zerolinecolor: 'rgba(255,255,255,0.08)' },
-            }}
+            ref={plotRef}
+            data={buildTraces()}
+            layout={plotLayout}
             config={{ responsive: true, displayModeBar: false, locale: 'pt-BR' }}
             style={{ width: '100%' }}
             onClick={handlePlotClick}
