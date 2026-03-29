@@ -305,22 +305,40 @@ body {
 .resumo-card:nth-child(4) .valor { background: linear-gradient(135deg, #34d399, #6ee7b7); -webkit-background-clip: text; background-clip: text; font-size: 0.85rem; }
 
 /* ============================================================
-   Tabs — Pill nav (iOS segmented control style)
+   Tabs — Sliding indicator nav (iOS segmented control)
    ============================================================ */
 .tabs {
   display: flex;
-  gap: 6px;
+  gap: 0;
   margin-bottom: var(--space-lg);
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  overflow: hidden;
   padding: 4px;
   background: rgba(255, 255, 255, 0.04);
   border-radius: var(--radius-lg);
   border: 1px solid rgba(255, 255, 255, 0.06);
+  position: relative;
 }
 
-.tabs::-webkit-scrollbar { display: none; }
+/* Sliding indicator pill */
+.tab-indicator {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(25% - 2px);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow:
+    0 2px 16px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 0 24px rgba(233, 69, 96, 0.08),
+    0 0 48px rgba(168, 85, 247, 0.04);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  z-index: 0;
+}
 
 .tab-btn {
   padding: 10px 16px;
@@ -331,12 +349,13 @@ body {
   cursor: pointer;
   font-size: 0.75rem;
   font-weight: 600;
-  transition: all 0.25s ease;
+  transition: color 0.3s ease, transform 0.15s ease;
   white-space: nowrap;
   flex: 1;
   min-width: 0;
   text-align: center;
   position: relative;
+  z-index: 1;
 }
 
 .tab-btn:active {
@@ -345,12 +364,7 @@ body {
 
 .tab-btn.active {
   color: var(--text-primary);
-  background: var(--glass-bg-strong);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow:
-    0 2px 12px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
 }
 
 /* ============================================================
@@ -431,6 +445,121 @@ body {
   border-color: rgba(233, 69, 96, 0.4);
   color: var(--text-primary);
   box-shadow: 0 2px 8px rgba(233, 69, 96, 0.15);
+}
+
+/* ============================================================
+   Neon Glow — Interactive chart enhancement
+   ============================================================ */
+.grafico-container.neon-glow {
+  border-color: rgba(168, 85, 247, 0.12);
+  animation: neon-pulse 3s ease-in-out infinite;
+}
+
+@keyframes neon-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 8px rgba(168, 85, 247, 0.08),
+      0 0 20px rgba(168, 85, 247, 0.04),
+      inset 0 0 6px rgba(168, 85, 247, 0.03);
+  }
+  50% {
+    box-shadow:
+      0 0 12px rgba(168, 85, 247, 0.18),
+      0 0 36px rgba(168, 85, 247, 0.08),
+      0 0 60px rgba(168, 85, 247, 0.03),
+      inset 0 0 12px rgba(168, 85, 247, 0.06);
+  }
+}
+
+/* ============================================================
+   Point Detail Panel — Expanded data on chart click
+   ============================================================ */
+.point-detail-panel {
+  position: relative;
+  margin-top: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(59, 130, 246, 0.06));
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: detail-expand 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  overflow: hidden;
+}
+
+.point-detail-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-secondary), var(--accent), var(--accent-tertiary));
+  opacity: 0.6;
+}
+
+@keyframes detail-expand {
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.point-detail-close {
+  position: absolute;
+  top: 8px; right: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  line-height: 1.2;
+  transition: background 0.2s, color 0.2s;
+}
+
+.point-detail-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.point-detail-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: var(--space-sm);
+  padding-right: 32px;
+  background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.75) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.point-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: var(--space-sm);
+}
+
+.point-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.point-detail-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+}
+
+.point-detail-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ============================================================
@@ -526,6 +655,17 @@ body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.th-unit {
+  display: block;
+  font-size: 0.5rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: none;
+  letter-spacing: normal;
+  margin-top: 1px;
+  opacity: 0.7;
+}
+
 .tabela-dados th:first-child { border-radius: var(--radius-sm) 0 0 0; }
 .tabela-dados th:last-child { border-radius: 0 var(--radius-sm) 0 0; }
 
@@ -535,13 +675,23 @@ body {
   color: var(--text-secondary);
   font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
+  transition: background 0.2s ease;
+}
+
+.tabela-dados td:first-child {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.tabela-dados tbody tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.tabela-dados tbody tr:hover td {
+  background: rgba(168, 85, 247, 0.06);
 }
 
 .tabela-dados tr:last-child td { border-bottom: none; }
-
-.tabela-dados tr:active td {
-  background: rgba(255, 255, 255, 0.03);
-}
 
 /* ============================================================
    Status Badges — Pill style
@@ -1033,12 +1183,20 @@ body {
   }
 
   .tabs {
-    gap: 8px;
+    gap: 0;
   }
 
   .tab-btn {
     padding: 11px 20px;
     font-size: 0.82rem;
+  }
+
+  .point-detail-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  .point-detail-title {
+    font-size: 1.05rem;
   }
 
   .kpi-section {

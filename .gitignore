@@ -31,3 +31,5 @@ Funil_Vendas_BACKUP.xlsx
 
 # Docker volumes
 docker-data/
+.vercel
+.env*.local

@@ -1,13 +1,32 @@
 import Head from 'next/head';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useKPIData } from '@/hooks/useKPIData';
 import ResumoCards from '@/components/ResumoCards';
 import KPICard from '@/components/KPICard';
 import PlanilhaInfo from '@/components/PlanilhaInfo';
 
+const TABS = [
+  { id: 'kpi3', label: 'Tempo' },
+  { id: 'kpi2', label: 'Valor' },
+  { id: 'kpi1', label: 'Conversão' },
+  { id: 'todos', label: 'Todos' },
+];
+const CHART_CYCLE = ['plotly', 'matplotlib', 'tabela'];
+
 export default function Home() {
   const { dados, carregando, erro, wsConectado, modo, recarregar } = useKPIData();
   const [tabAtiva, setTabAtiva] = useState('todos');
+  const [chartType, setChartType] = useState('plotly');
+
+  const activeIdx = TABS.findIndex(t => t.id === tabAtiva);
+
+  const handleTab = useCallback((id) => {
+    if (id === tabAtiva) {
+      setChartType(prev => CHART_CYCLE[(CHART_CYCLE.indexOf(prev) + 1) % CHART_CYCLE.length]);
+    } else {
+      setTabAtiva(id);
+    }
+  }, [tabAtiva]);
 
   return (
     <>
@@ -68,30 +87,26 @@ export default function Home() {
             <ResumoCards resumo={dados.resumo} />
 
             {/* Tabs de navegação */}
-            <div className="tabs">
-              <button className={`tab-btn ${tabAtiva === 'todos' ? 'active' : ''}`} onClick={() => setTabAtiva('todos')}>
-                Todos
-              </button>
-              <button className={`tab-btn ${tabAtiva === 'kpi1' ? 'active' : ''}`} onClick={() => setTabAtiva('kpi1')}>
-                Conversão
-              </button>
-              <button className={`tab-btn ${tabAtiva === 'kpi2' ? 'active' : ''}`} onClick={() => setTabAtiva('kpi2')}>
-                Valor
-              </button>
-              <button className={`tab-btn ${tabAtiva === 'kpi3' ? 'active' : ''}`} onClick={() => setTabAtiva('kpi3')}>
-                Tempo
-              </button>
+            <div className="tabs" role="tablist">
+              <div className="tab-indicator" style={{ transform: `translateX(${activeIdx * 100}%)` }} />
+              {TABS.map(tab => (
+                <button key={tab.id} role="tab" aria-selected={tabAtiva === tab.id}
+                  className={`tab-btn ${tabAtiva === tab.id ? 'active' : ''}`}
+                  onClick={() => handleTab(tab.id)}>
+                  {tab.label}
+                </button>
+              ))}
             </div>
 
             {/* KPIs */}
             {(tabAtiva === 'todos' || tabAtiva === 'kpi1') && (
-              <KPICard kpi={dados.kpi_1} numero={1} />
+              <KPICard kpi={dados.kpi_1} numero={1} tipoGraficoGlobal={chartType} />
             )}
             {(tabAtiva === 'todos' || tabAtiva === 'kpi2') && (
-              <KPICard kpi={dados.kpi_2} numero={2} />
+              <KPICard kpi={dados.kpi_2} numero={2} tipoGraficoGlobal={chartType} />
             )}
             {(tabAtiva === 'todos' || tabAtiva === 'kpi3') && (
-              <KPICard kpi={dados.kpi_3} numero={3} />
+              <KPICard kpi={dados.kpi_3} numero={3} tipoGraficoGlobal={chartType} />
             )}
 
             {/* Dados da Planilha — seção final */}
