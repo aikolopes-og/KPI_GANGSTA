@@ -574,6 +574,173 @@ body {
 }
 
 /* ============================================================
+   Planilha Info — Liquid Glass data card
+   ============================================================ */
+.planilha-info {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur-heavy));
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-md);
+  margin-bottom: var(--space-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.planilha-info::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-tertiary), var(--accent-secondary), var(--accent));
+  opacity: 0.6;
+}
+
+.planilha-info-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.planilha-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(168, 85, 247, 0.15));
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: var(--accent-tertiary);
+  flex-shrink: 0;
+}
+
+.planilha-info-header h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.planilha-sub {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.planilha-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.planilha-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.planilha-item-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+}
+
+.planilha-item-valor {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.planilha-campos-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.campo-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+  white-space: nowrap;
+}
+
+/* ROI section */
+.planilha-roi {
+  text-align: center;
+  padding: var(--space-lg) var(--space-md);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.roi-valor {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+
+.roi-positivo {
+  background: linear-gradient(135deg, #34d399, #6ee7b7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.roi-negativo {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.roi-detalhe {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.roi-ganho { color: var(--success); font-weight: 600; }
+.roi-separador { color: var(--text-tertiary); }
+.roi-total { color: var(--text-secondary); }
+
+.roi-alerta {
+  margin-top: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--warning);
+  padding: 6px 12px;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.15);
+  border-radius: var(--radius-pill);
+  display: inline-block;
+}
+
+/* ============================================================
    DESKTOP BREAKPOINT — ≥768px
    ============================================================ */
 @media (min-width: 768px) {
@@ -667,6 +834,52 @@ body {
   .tabela-dados td { font-size: 0.82rem; padding: 12px var(--space-md); }
 
   .footer { font-size: 0.75rem; }
+
+  /* Planilha Info — desktop */
+  .planilha-info {
+    padding: var(--space-xl) var(--space-lg);
+    border-radius: var(--radius-xl);
+  }
+
+  .planilha-icon {
+    width: 52px;
+    height: 52px;
+  }
+
+  .planilha-info-header h3 {
+    font-size: 1.25rem;
+  }
+
+  .planilha-sub {
+    font-size: 0.85rem;
+  }
+
+  .planilha-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+  }
+
+  .planilha-item:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .planilha-item-label {
+    font-size: 0.72rem;
+  }
+
+  .planilha-item-valor {
+    font-size: 0.9rem;
+  }
+
+  .campo-tag {
+    font-size: 0.7rem;
+    padding: 5px 12px;
+  }
+
+  .roi-valor {
+    font-size: 2.8rem;
+  }
 }
 
 /* ============================================================

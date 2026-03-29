@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useKPIData } from '@/hooks/useKPIData';
 import ResumoCards from '@/components/ResumoCards';
 import KPICard from '@/components/KPICard';
+import PlanilhaInfo from '@/components/PlanilhaInfo';
 
 export default function Home() {
   const { dados, carregando, erro, wsConectado, modo, recarregar } = useKPIData();
@@ -49,6 +50,9 @@ export default function Home() {
         {/* Conteúdo */}
         {dados && (
           <>
+            {/* Info da Planilha */}
+            <PlanilhaInfo resumo={dados.resumo} meta={dados._meta} kpi2={dados.kpi_2} />
+
             {/* Resumo */}
             <ResumoCards resumo={dados.resumo} />
 
