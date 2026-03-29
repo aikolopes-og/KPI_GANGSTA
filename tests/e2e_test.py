@@ -173,8 +173,7 @@ def fase_gerar_kpis(df_modificado):
     # Rodar gerar_kpis.py
     sys.path.insert(0, os.path.join(ROOT, "backend"))
     import importlib
-    # Ajustar DATA_PATH
-    import gerar_kpis
+    gerar_kpis = importlib.import_module("gerar_kpis")
     importlib.reload(gerar_kpis)
 
     try:
@@ -303,8 +302,8 @@ def fase_restaurar():
     # Re-gerar JSON com dados originais
     log("Re-gerando kpis.json com dados originais...")
     sys.path.insert(0, os.path.join(ROOT, "backend"))
-    import gerar_kpis
     import importlib
+    gerar_kpis = importlib.import_module("gerar_kpis")
     importlib.reload(gerar_kpis)
     try:
         gerar_kpis.main()

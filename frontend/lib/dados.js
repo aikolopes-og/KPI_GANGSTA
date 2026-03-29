@@ -1,12 +1,9 @@
-import fs from 'fs';
-import path from 'path';
+import kpisData from '../data/kpis.json';
 
 /**
- * Carrega os dados KPI do JSON pré-processado pelo Python.
- * Funciona tanto em localhost (Docker) quanto na Vercel.
+ * Carrega os dados KPI do JSON pre-processado pelo Python.
+ * Usa import direto para que Next.js inclua no bundle (funciona na Vercel).
  */
 export function carregarKPIs() {
-  const filePath = path.join(process.cwd(), 'data', 'kpis.json');
-  const raw = fs.readFileSync(filePath, 'utf-8');
-  return JSON.parse(raw);
+  return kpisData;
 }
