@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
@@ -6,28 +6,79 @@ const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 const CHART_TYPES = ['plotly', 'matplotlib', 'tabela'];
 const CHART_LABELS = { plotly: 'Interativo', matplotlib: 'Estático', tabela: 'Tabela' };
 
-/* ── Bar gradient colors (each bar gets its own color from this palette) ── */
-const BAR_COLORS = [
-  'rgba(233,69,96,{a})',   // red-pink
-  'rgba(168,85,247,{a})',  // purple
-  'rgba(59,130,246,{a})',  // blue
-  'rgba(52,211,153,{a})',  // green
-  'rgba(251,191,36,{a})',  // gold
-  'rgba(236,72,153,{a})',  // pink
-  'rgba(99,102,241,{a})',  // indigo
-];
+/**
+ * After Plotly renders, inject SVG <linearGradient> defs onto each bar/funnel
+ * so bars get a top-to-bottom gradient (lighter → original color → slightly darker).
+ * This creates the "gaussian gradient" look on the actual bars.
+ */
+function applyBarGradients(containerEl) {
+  if (!containerEl) return;
+  const svg = containerEl.querySelector('svg.main-svg');
+  if (!svg) return;
 
-/* Pulse: oscillate alpha between 0.6 and 1.0 */
-function pulseAlpha(tick) {
-  return 0.6 + 0.4 * (0.5 + 0.5 * Math.sin(tick * Math.PI * 2));
+  // Create or find defs
+  let defs = svg.querySelector('defs.kpi-grads');
+  if (!defs) {
+    defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    defs.setAttribute('class', 'kpi-grads');
+    svg.prepend(defs);
+  }
+  defs.innerHTML = '';
+
+  // Find all bar trace paths and funnel paths
+  const tracePaths = svg.querySelectorAll('.trace.bars .point > path, .trace.funnel .point > path');
+  let gradIdx = 0;
+  tracePaths.forEach(path => {
+    const fill = path.getAttribute('fill') || path.style.fill;
+    if (!fill || fill === 'none' || fill === 'transparent') return;
+
+    const id = `bar-grad-${gradIdx++}`;
+    const grad = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+    grad.setAttribute('id', id);
+    grad.setAttribute('x1', '0'); grad.setAttribute('y1', '0');
+    grad.setAttribute('x2', '0'); grad.setAttribute('y2', '1');
+
+    // Parse color to get lighter/darker versions
+    const c = parseColor(fill);
+    if (!c) return;
+
+    const stops = [
+      { offset: '0%', color: lighten(c, 50), opacity: '1' },
+      { offset: '35%', color: lighten(c, 20), opacity: '0.95' },
+      { offset: '60%', color: `rgb(${c.r},${c.g},${c.b})`, opacity: '0.9' },
+      { offset: '100%', color: darken(c, 30), opacity: '0.85' },
+    ];
+
+    stops.forEach(s => {
+      const stop = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+      stop.setAttribute('offset', s.offset);
+      stop.setAttribute('stop-color', s.color);
+      stop.setAttribute('stop-opacity', s.opacity);
+      grad.appendChild(stop);
+    });
+
+    defs.appendChild(grad);
+    path.style.fill = `url(#${id})`;
+  });
 }
 
-/* Generate bar colors at a given pulse phase (0..1) */
-function barColors(n, traceIdx, phase) {
-  const a = pulseAlpha(phase);
-  return Array.from({ length: n }, (_, i) =>
-    BAR_COLORS[(i + traceIdx) % BAR_COLORS.length].replace('{a}', a.toFixed(2))
-  );
+function parseColor(str) {
+  const m = str.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (m) return { r: +m[1], g: +m[2], b: +m[3] };
+  // hex
+  const h = str.match(/#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i);
+  if (h) return { r: parseInt(h[1],16), g: parseInt(h[2],16), b: parseInt(h[3],16) };
+  return null;
+}
+
+function lighten(c, pct) {
+  const f = pct / 100;
+  return `rgb(${Math.min(255, Math.round(c.r + (255 - c.r) * f))},${Math.min(255, Math.round(c.g + (255 - c.g) * f))},${Math.min(255, Math.round(c.b + (255 - c.b) * f))})`;
+}
+
+function darken(c, pct) {
+  const f = 1 - pct / 100;
+  return `rgb(${Math.round(c.r * f)},${Math.round(c.g * f)},${Math.round(c.b * f)})`;
 }
 
 const COL_FORMATS = {
@@ -74,38 +125,11 @@ function cellColor(col, v, min, max) {
 export default function KPICard({ kpi, numero, tipoGraficoGlobal }) {
   const [tipoGrafico, setTipoGrafico] = useState(tipoGraficoGlobal || 'plotly');
   const [selectedPoint, setSelectedPoint] = useState(null);
-  const [phase, setPhase] = useState(0);
-  const [growStep, setGrowStep] = useState(0); // 0=hidden, 1..N=staggered bars growing
-  const plotRef = useRef(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     if (tipoGraficoGlobal) setTipoGrafico(tipoGraficoGlobal);
   }, [tipoGraficoGlobal]);
-
-  // Soft entrance: staggered grow from 0 → full over multiple steps
-  useEffect(() => {
-    if (tipoGrafico !== 'plotly' || !kpi?.plotly_json) return;
-    setGrowStep(0);
-    const maxBars = Math.max(...kpi.plotly_json.data.map(t => (t.y || t.x || []).length), 1);
-    const totalSteps = maxBars + 6; // extra steps for easing to 100%
-    let step = 0;
-    const iv = setInterval(() => {
-      step++;
-      setGrowStep(step);
-      if (step >= totalSteps) clearInterval(iv);
-    }, 120);
-    return () => clearInterval(iv);
-  }, [tipoGrafico, kpi]);
-
-  // Infinite pulse: smooth breathing on bar colors (~20fps for performance)
-  useEffect(() => {
-    if (tipoGrafico !== 'plotly') return;
-    const start = Date.now();
-    const iv = setInterval(() => {
-      setPhase(((Date.now() - start) % 2500) / 2500);
-    }, 50);
-    return () => clearInterval(iv);
-  }, [tipoGrafico]);
 
   if (!kpi) return null;
 
@@ -118,47 +142,11 @@ export default function KPICard({ kpi, numero, tipoGraficoGlobal }) {
     setSelectedPoint(prev => (prev && prev.label === lbl) ? null : { label: lbl, row });
   };
 
-  // Build traces with pulsing bar colors + staggered entrance
-  const buildTraces = useCallback(() => {
-    if (!kpi.plotly_json) return [];
-    return kpi.plotly_json.data.map((tr, ti) => {
-      const isFunnel = tr.type === 'funnel';
-      const isBar = tr.type === 'bar';
-      const values = tr.y || tr.x || [];
-      const n = values.length;
-      const colors = barColors(n, ti, phase);
-
-      const base = {
-        ...tr,
-        marker: {
-          ...tr.marker,
-          color: colors,
-          line: { ...(tr.marker?.line || {}), width: 1, color: 'rgba(255,255,255,0.1)' },
-        },
-        hoverlabel: { bgcolor: 'rgba(12,10,29,0.95)', bordercolor: 'rgba(168,85,247,0.5)', font: { color: '#fff', size: 13 } },
-      };
-
-      // Staggered soft entrance: each bar grows independently
-      if (isBar && growStep < n + 6) {
-        const newY = values.map((v, i) => {
-          const barProgress = Math.min(1, Math.max(0, (growStep - i) / 6));
-          // Ease-out cubic for soft landing
-          const eased = 1 - Math.pow(1 - barProgress, 3);
-          return v * eased;
-        });
-        return { ...base, y: newY };
-      }
-      if (isFunnel && growStep < n + 6) {
-        const newX = values.map((v, i) => {
-          const barProgress = Math.min(1, Math.max(0, (growStep - i) / 6));
-          const eased = 1 - Math.pow(1 - barProgress, 3);
-          return v * eased;
-        });
-        return { ...base, x: newX };
-      }
-      return base;
-    });
-  }, [kpi, phase, growStep]);
+  // Keep Plotly's original trace data — only style hoverlabels
+  const traces = (kpi.plotly_json?.data || []).map(tr => ({
+    ...tr,
+    hoverlabel: { bgcolor: 'rgba(12,10,29,0.95)', bordercolor: 'rgba(168,85,247,0.5)', font: { color: '#fff', size: 13 } },
+  }));
 
   const plotLayout = {
     ...kpi.plotly_json?.layout,
@@ -186,18 +174,19 @@ export default function KPICard({ kpi, numero, tipoGraficoGlobal }) {
         ))}
       </div>
 
-      <div className="grafico-container">
+      <div className="grafico-container" ref={containerRef}>
         {tipoGrafico === 'matplotlib' && kpi.matplotlib_img && (
           <img src={`data:image/png;base64,${kpi.matplotlib_img}`} alt={`Gráfico ${kpi.titulo}`} />
         )}
         {tipoGrafico === 'plotly' && kpi.plotly_json && (
           <Plot
-            ref={plotRef}
-            data={buildTraces()}
+            data={traces}
             layout={plotLayout}
             config={{ responsive: true, displayModeBar: false, locale: 'pt-BR' }}
             style={{ width: '100%' }}
+            className="plotly-alive"
             onClick={handlePlotClick}
+            onAfterPlot={() => applyBarGradients(containerRef.current)}
           />
         )}
         {tipoGrafico === 'tabela' && (

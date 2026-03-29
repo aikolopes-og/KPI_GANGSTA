@@ -246,3 +246,97 @@ docker-compose up --build -d    # Sobe containers
 ---
 
 *Última atualização: 29/03/2026*
+
+---
+
+## Prompt 7 — Fix Vercel Deploy (Dados + Hydration)
+**Solicitação do Aluno:**
+> "O site na Vercel mostra 'Carregando dados do funil de vendas...' eternamente"
+
+**Resultado — 2 bugs corrigidos:**
+
+**Bug 1**: `frontend/lib/dados.js` usava `fs.readFileSync` — falha em serverless Vercel (sem acesso ao filesystem).
+- **Fix**: Trocado para `import kpisData from '../data/kpis.json'` (bundled no build)
+
+**Bug 2**: `frontend/pages/_document.js` retornava `null` — sem `<Html>`, `<Head>`, `<Main>`, `<NextScript>`.
+- Sem `<NextScript>`, nenhum bundle JS era carregado → React nunca hidratava → `fetch()` nunca executava
+- **Fix**: Document reescrito com estrutura padrão Next.js
+
+**Commits**: `9bb19b6` (dados.js), `a17344f` (_document.js)
+
+---
+
+## Prompt 8 — Componente PlanilhaInfo
+**Solicitação do Aluno:**
+> "Criar um card retangular mostrando: nome da planilha, conteúdo, campos, período, objetivo e ROI"
+
+**Resultado:**
+- Criado `frontend/components/PlanilhaInfo.js` com dados de `resumo`, `_meta` e `kpi_2`
+- ROI calculado: Ganho / Pipeline total
+- Alerta visual quando valor perdido > valor ganho
+- Posicionado após todos os KPIs, antes do footer
+- **Commit**: `c3aae1f`
+
+---
+
+## Prompt 9 — Redesign PlanilhaInfo + Efeitos Globais
+**Solicitação do Aluno:**
+> "O bloco está EXTREMAMENTE FEIO, posicionar por último, usar sombras, efeitos de luz e animações seguindo referências de Liquid Glass Design"
+
+**Resultado:**
+- **PlanilhaInfo redesenhado**: section title com linhas divisórias, ROI ring SVG com animação de arco, glow orb, shimmer accent line, pills staggered com fade-in
+- **Efeitos globais**: soft shadows em todos os glass cards, hover lift, light refraction (radial gradient pseudo-element), `prefers-reduced-motion` suporte
+- **Movido**: de hero position (topo) para bottom (antes do footer)
+- **Commit**: `7079cd7`
+
+---
+
+## Prompt 10 — Ninja Icon (Logo + Favicon)
+**Solicitação do Aluno:**
+> "PUT A 'NINJA' REACT ICON AS A LOGO AND FAV ICON"
+
+**Resultado:**
+- Criado `frontend/public/favicon.svg` — ninja com bandana vermelha, olhos brancos, espada roxa sobre fundo escuro
+- Inline SVG no header acima do título "KPI GANGSTAS"
+- CSS: animação `ninja-float` (3s ease-in-out infinite), drop-shadow accent, 48px mobile / 56px desktop
+- Favicon via `<link rel="icon" type="image/svg+xml">` e `<link rel="apple-touch-icon">`
+- **Commit**: `b53eddf`
+
+---
+
+## Prompt 11 — Menu Nav Aprimorado + Tabelas + Interativo Default
+**Solicitação do Aluno:**
+> "Alterar menu de navegação dos KPIs: inversão de ordem, efeitos de motion/light, cor no selecionado, double-click cycling, tabelas com unidades/cores, interativo como padrão"
+
+**Resultado:**
+- **Tabs reordenados**: Tempo → Valor → Conversão → Todos (movimento visual ao clicar adjacente)
+- **Sliding indicator pill**: elemento animado com `cubic-bezier(0.16, 1, 0.3, 1)`, glow neon sutil, `text-shadow` no ativo
+- **Re-clique cicla views**: clicar no tab ativo alterna Interativo → Estático → Tabela
+- **Tabelas com unidades**: `%` em conversão/taxa, `R$` em valores, `dias` em tempos, mostradas no header da coluna
+- **Teoria das cores nas tabelas**: gradiente vermelho → amarelo → verde por valor relativo (escala invertida para tempo), linhas alternadas, hover roxo, primeira coluna em destaque
+- **Interativo como padrão**: Plotly agora é a primeira opção (antes era matplotlib)
+- **Click em barras**: expande painel de detalhes com dados completos do item clicado
+- **Commit**: `efe5843`
+
+---
+
+## Prompt 12 — Pulse Effect + Gradiente nas Barras
+**Solicitação do Aluno:**
+> "GAUSSIAN-GRADIENT-COLOR-EFFECT nas barras, PULSE EFFECT nas barras (não no div), motion nos gráficos, soft entrance"
+
+**Resultado:**
+- **Cores originais preservadas**: cada trace mantém sua cor original do Plotly (corrige mismatch com legenda)
+- **Gradiente SVG nas barras**: após render, inject `<linearGradient>` SVG em cada barra — top claro, meio cor original, bottom escuro (efeito gaussian)
+- **Pulse nas barras via CSS**: `@keyframes bar-pulse` aplica `brightness(1→1.25)` + `drop-shadow` nos SVG paths diretamente, com delays staggered por barra
+- **Soft entrance**: animação `plot-enter` (fade + slide-up) no container Plotly
+- **Container div limpo**: removidos todos os efeitos neon/shimmer do div container
+- **Commit**: `47dbfa2`, atualizado
+
+---
+
+| Arquivo | Alteração |
+|---------|-----------|
+| `frontend/components/KPICard.js` | Gradientes SVG injetados via `onAfterPlot`, sem override de cores, CSS pulse |
+| `frontend/styles/globals.css` | `bar-pulse` keyframes com stagger delays, `plot-enter` fade-in |
+| `PROMPTS_E_RESULTADOS.md` | Atualizado com prompts 7–12 |
+| `README.md` | Criado com descrição do app, URL, stack e instruções |
