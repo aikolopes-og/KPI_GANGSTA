@@ -100,6 +100,51 @@ body {
 }
 
 /* ============================================================
+   Global soft shadows & light effects on all glass cards
+   ============================================================ */
+.resumo-card,
+.kpi-section,
+.insight-box,
+.tabs {
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.2),
+    0 1px 4px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.35s ease,
+              border-color 0.35s ease;
+}
+
+.resumo-card:hover,
+.kpi-section:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.28),
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border-color: var(--glass-border-strong);
+}
+
+/* Soft inner light refraction on glass cards */
+.kpi-section::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.kpi-section:hover::after {
+  opacity: 1;
+}
+
+/* ============================================================
    Header — Pill-style (Dynamic Island inspired)
    ============================================================ */
 .header {
@@ -574,129 +619,247 @@ body {
 }
 
 /* ============================================================
-   Planilha Info — Liquid Glass data card
+   Planilha Section — Premium data card (bottom of page)
    ============================================================ */
-.planilha-info {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur-heavy));
-  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg) var(--space-md);
-  margin-bottom: var(--space-lg);
-  position: relative;
-  overflow: hidden;
+.planilha-section {
+  margin-top: var(--space-xl);
+  margin-bottom: var(--space-md);
+  animation: fade-up 0.6s ease-out 0.2s both;
 }
 
-.planilha-info::before {
+.planilha-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.planilha-section-title h2 {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.planilha-section-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+}
+
+.planilha-card {
+  position: relative;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+  backdrop-filter: blur(var(--glass-blur-heavy));
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  overflow: hidden;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.25),
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+}
+
+.planilha-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 48px rgba(0, 0, 0, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Soft glow orb behind card */
+.planilha-glow {
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+  animation: glow-drift 8s ease-in-out infinite alternate;
+}
+
+@keyframes glow-drift {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+  100% { transform: translate(-30px, 20px) scale(1.15); opacity: 0.9; }
+}
+
+/* Top accent line */
+.planilha-card::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--accent-tertiary), var(--accent-secondary), var(--accent));
-  opacity: 0.6;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 5%,
+    rgba(59, 130, 246, 0.5) 20%,
+    rgba(168, 85, 247, 0.6) 50%,
+    rgba(233, 69, 96, 0.5) 80%,
+    transparent 95%);
+  animation: shimmer-line 4s ease-in-out infinite;
 }
 
-.planilha-info-header {
+@keyframes shimmer-line {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ── Header ── */
+.planilha-header {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
   margin-bottom: var(--space-lg);
-  padding-bottom: var(--space-md);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  position: relative;
+  z-index: 1;
 }
 
 .planilha-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(168, 85, 247, 0.15));
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  color: var(--accent-tertiary);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(168, 85, 247, 0.12));
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  color: #60a5fa;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
 }
 
-.planilha-info-header h3 {
-  font-size: 1.05rem;
+.planilha-title-block h3 {
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
-.planilha-sub {
-  color: var(--text-secondary);
-  font-size: 0.75rem;
+.planilha-title-block p {
+  color: var(--text-tertiary);
+  font-size: 0.72rem;
   font-weight: 500;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
-.planilha-grid {
+/* ── Body — two-column layout ── */
+.planilha-body {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+  position: relative;
+  z-index: 1;
 }
 
-.planilha-item {
+.planilha-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.planilha-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
-.planilha-item-label {
-  font-size: 0.65rem;
+.planilha-detail:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.detail-label {
+  font-size: 0.6rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--text-tertiary);
-  margin-bottom: 8px;
 }
 
-.planilha-item-valor {
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  line-height: 1.6;
-  font-weight: 500;
-}
-
-.planilha-campos-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.campo-tag {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-  font-size: 0.65rem;
+.detail-value {
+  font-size: 0.88rem;
   font-weight: 600;
-  letter-spacing: 0.01em;
-  background: rgba(168, 85, 247, 0.1);
-  border: 1px solid rgba(168, 85, 247, 0.2);
-  color: #c084fc;
-  white-space: nowrap;
+  color: var(--text-secondary);
+  letter-spacing: -0.01em;
 }
 
-/* ROI section */
-.planilha-roi {
-  text-align: center;
-  padding: var(--space-lg) var(--space-md);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.detail-desc {
+  font-weight: 500;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--text-tertiary);
 }
 
-.roi-valor {
-  font-size: 2.2rem;
+/* ── ROI Column ── */
+.planilha-roi-col {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 0.3s ease;
+}
+
+.planilha-roi-col:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.roi-ring {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
+}
+
+.roi-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 6px rgba(52, 211, 153, 0.2));
+}
+
+.roi-arc {
+  animation: arc-draw 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+}
+
+@keyframes arc-draw {
+  from { stroke-dasharray: 0 326.7; }
+}
+
+.roi-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.roi-number {
+  font-size: 1.3rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  line-height: 1.1;
-  margin-bottom: 8px;
+  line-height: 1;
 }
 
 .roi-positivo {
@@ -713,31 +876,88 @@ body {
   background-clip: text;
 }
 
-.roi-detalhe {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  flex-wrap: wrap;
+.roi-label {
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-tertiary);
+  margin-top: 2px;
 }
 
-.roi-ganho { color: var(--success); font-weight: 600; }
-.roi-separador { color: var(--text-tertiary); }
-.roi-total { color: var(--text-secondary); }
+.roi-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-.roi-alerta {
-  margin-top: 10px;
-  font-size: 0.7rem;
+.roi-line {
+  font-size: 0.72rem;
   font-weight: 600;
+}
+
+.roi-ganho { color: var(--success); }
+.roi-pipeline { color: var(--text-tertiary); }
+
+.roi-alert {
+  font-size: 0.62rem;
+  font-weight: 700;
   color: var(--warning);
-  padding: 6px 12px;
+  padding: 3px 8px;
   background: rgba(251, 191, 36, 0.08);
-  border: 1px solid rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.12);
   border-radius: var(--radius-pill);
+  margin-top: 2px;
   display: inline-block;
+}
+
+/* ── Campos (tags footer) ── */
+.planilha-campos {
+  position: relative;
+  z-index: 1;
+  padding-top: var(--space-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.campos-label {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-sm);
+}
+
+.campos-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.campo-pill {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  font-size: 0.6rem;
+  font-weight: 600;
+  background: rgba(168, 85, 247, 0.08);
+  border: 1px solid rgba(168, 85, 247, 0.15);
+  color: rgba(192, 132, 252, 0.85);
+  white-space: nowrap;
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+  animation: pill-in 0.35s ease-out both;
+}
+
+.campo-pill:hover {
+  background: rgba(168, 85, 247, 0.15);
+  border-color: rgba(168, 85, 247, 0.3);
+  transform: translateY(-1px);
+}
+
+@keyframes pill-in {
+  from { opacity: 0; transform: translateY(4px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* ============================================================
@@ -835,50 +1055,61 @@ body {
 
   .footer { font-size: 0.75rem; }
 
-  /* Planilha Info — desktop */
-  .planilha-info {
+  /* Planilha Section — desktop */
+  .planilha-card {
     padding: var(--space-xl) var(--space-lg);
     border-radius: var(--radius-xl);
   }
 
-  .planilha-icon {
-    width: 52px;
-    height: 52px;
-  }
-
-  .planilha-info-header h3 {
-    font-size: 1.25rem;
-  }
-
-  .planilha-sub {
-    font-size: 0.85rem;
-  }
-
-  .planilha-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+  .planilha-header {
     gap: var(--space-md);
   }
 
-  .planilha-item:first-child {
-    grid-column: 1 / -1;
+  .planilha-icon {
+    width: 48px;
+    height: 48px;
   }
 
-  .planilha-item-label {
-    font-size: 0.72rem;
+  .planilha-title-block h3 {
+    font-size: 1.2rem;
   }
 
-  .planilha-item-valor {
-    font-size: 0.9rem;
+  .planilha-title-block p {
+    font-size: 0.8rem;
   }
 
-  .campo-tag {
-    font-size: 0.7rem;
-    padding: 5px 12px;
+  .planilha-body {
+    flex-direction: row;
+    gap: var(--space-lg);
   }
 
-  .roi-valor {
-    font-size: 2.8rem;
+  .planilha-info-col {
+    flex: 1;
+  }
+
+  .planilha-roi-col {
+    flex-shrink: 0;
+    min-width: 260px;
+    padding: var(--space-lg);
+  }
+
+  .roi-ring {
+    width: 100px;
+    height: 100px;
+  }
+
+  .roi-number {
+    font-size: 1.5rem;
+  }
+
+  .campo-pill {
+    font-size: 0.65rem;
+    padding: 4px 11px;
+  }
+
+  .planilha-glow {
+    width: 400px;
+    height: 400px;
   }
 }
 
@@ -904,7 +1135,7 @@ body {
 }
 
 /* ============================================================
-   Animations
+   Animations — staggered entry & micro-interactions
    ============================================================ */
 @keyframes fade-up {
   from {
@@ -917,10 +1148,23 @@ body {
   }
 }
 
+@keyframes soft-glow {
+  0%, 100% { box-shadow: 0 4px 20px rgba(0,0,0,0.2), 0 0 0 rgba(168,85,247,0); }
+  50% { box-shadow: 0 4px 20px rgba(0,0,0,0.2), 0 0 40px rgba(168,85,247,0.04); }
+}
+
+.header {
+  animation: fade-up 0.4s ease-out both;
+}
+
 .resumo-card,
 .kpi-section,
 .insight-box {
   animation: fade-up 0.5s ease-out both;
+}
+
+.tabs {
+  animation: fade-up 0.45s ease-out 0.15s both;
 }
 
 .resumo-card:nth-child(1) { animation-delay: 0.05s; }
@@ -931,3 +1175,11 @@ body {
 .resumo-card:nth-child(6) { animation-delay: 0.3s; }
 .resumo-card:nth-child(7) { animation-delay: 0.35s; }
 .resumo-card:nth-child(8) { animation-delay: 0.4s; }
+
+/* Prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

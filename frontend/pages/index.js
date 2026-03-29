@@ -50,9 +50,6 @@ export default function Home() {
         {/* Conteúdo */}
         {dados && (
           <>
-            {/* Info da Planilha */}
-            <PlanilhaInfo resumo={dados.resumo} meta={dados._meta} kpi2={dados.kpi_2} />
-
             {/* Resumo */}
             <ResumoCards resumo={dados.resumo} />
 
@@ -82,6 +79,9 @@ export default function Home() {
             {(tabAtiva === 'todos' || tabAtiva === 'kpi3') && (
               <KPICard kpi={dados.kpi_3} numero={3} />
             )}
+
+            {/* Dados da Planilha — seção final */}
+            <PlanilhaInfo resumo={dados.resumo} meta={dados._meta} kpi2={dados.kpi_2} />
           </>
         )}
 
